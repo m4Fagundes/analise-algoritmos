@@ -1,0 +1,3 @@
+C:/Users/mathe/OneDrive/Documentos/Ciencia da Computacao/PAA/analise-algoritmos/build/CMakeFiles/analise_algoritmos.dir
+C:/Users/mathe/OneDrive/Documentos/Ciencia da Computacao/PAA/analise-algoritmos/build/CMakeFiles/edit_cache.dir
+C:/Users/mathe/OneDrive/Documentos/Ciencia da Computacao/PAA/analise-algoritmos/build/CMakeFiles/rebuild_cache.dir
