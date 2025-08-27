@@ -15,7 +15,7 @@ int main() {
 
     try {
         std::cout << "Iniciando teste do Modulo Core..." << std::endl;
-        std::cout << "------------------------------------" << std::endl;
+        std::cout << "------------------------------------" << std::endl
 
         Timer timer;
         FeatureVector vec1, vec2;
