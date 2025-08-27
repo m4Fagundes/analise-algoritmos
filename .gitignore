@@ -1,0 +1,14 @@
+# Arquivos e pastas de build do CMake
+/build/
+/build-*/
+
+# Arquivos gerados pelo compilador
+*.exe
+*.obj
+*.o
+*.dll
+*.so
+*.a
+
+# Arquivos de cache do VS Code
+.vscode/
