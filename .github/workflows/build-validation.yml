@@ -1,0 +1,24 @@
+name: Validacao de Build (C++/CMake)
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do Repositorio
+        uses: actions/checkout@v4
+
+      - name: Instalar Dependencias
+        run: sudo apt-get update && sudo apt-get install -y build-essential cmake
+
+      - name: Configurar CMake
+        run: cmake -S . -B build
+
+      - name: Compilar o Projeto
+        run: cmake --build build
