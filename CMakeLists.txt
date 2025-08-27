@@ -22,7 +22,7 @@ add_executable(${EXECUTABLE_NAME}
     src/main.cpp
     src/core/Image.cpp
     src/core/Vector.cpp
-    # src/structure/List.cpp
+    src/structure/List.cpp
     # src/structure/KDTree.cpp
     # src/structure/HashTable.cpp
 )

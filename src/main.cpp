@@ -4,55 +4,125 @@
 #include <string>
 #include <vector>
 #include <stdexcept>
+#include <filesystem>
+#include <algorithm>
 
 #include "core/Image.h"
 #include "core/Vector.h"
 #include "core/Timer.h"
+#include "structure/List.h"
 
-int main() {
-    std::string image_path1 = "../images/cartoon-network.jpg";
-    std::string image_path2 = "../images/cartoon-network.jpg";
+using namespace std;
+
+bool isImageFile(const string& filename) {
+    string extension = filesystem::path(filename).extension().string();
+    transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
+    return extension == ".jpg" || extension == ".jpeg" || extension == ".png";
+}
+
+ImageList processImagesFromFolder(const string& folder_path) {
+    ImageList imageList;
+
+    cout << "\nProcessando imagens da pasta: " << folder_path << endl;
+    cout << "------------------------------------" << endl;
 
     try {
-        std::cout << "Iniciando teste do Modulo Core..." << std::endl;
-        std::cout << "------------------------------------" << std::endl;
-
         Timer timer;
-        FeatureVector vec1, vec2;
+        for (const auto& entry : filesystem::directory_iterator(folder_path)) {
+            if (entry.is_regular_file() && isImageFile(entry.path().string())) {
+                string img_path = entry.path().string();
 
-        std::cout << "Processando a imagem 1: " << image_path1 << std::endl;
-        timer.start();
-        vec1 = extractFeatures(image_path1);
-        double time1 = timer.elapsed_milliseconds();
-        
-        std::cout << "  -> Vetor de caracteristicas extraido com " << vec1.size() << " dimensoes." << std::endl;
-        std::cout << "  -> Tempo de extracao: " << time1 << " ms" << std::endl;
-        std::cout << std::endl;
+                cout << "Processando: " << entry.path().filename().string() << endl;
 
-        
+                timer.start();
+                FeatureVector features = extractFeatures(img_path);
+                const double extraction_time = timer.elapsed_milliseconds();
 
-        std::cout << "Processando a imagem 2: " << image_path2 << std::endl;
-        timer.start();
-        vec2 = extractFeatures(image_path2);
-        double time2 = timer.elapsed_milliseconds();
+                cout << "  -> Vetor de características extraído com " << features.size() << " dimensões." << endl;
+                cout << "  -> Tempo de extração: " << extraction_time << " ms" << endl;
 
-        std::cout << "  -> Vetor de caracteristicas extraido com " << vec2.size() << " dimensoes." << std::endl;
-        std::cout << "  -> Tempo de extracao: " << time2 << " ms" << std::endl;
-        std::cout << std::endl;
+                ImageData img_data(img_path, features, extraction_time);
+                imageList.addImage(img_data);
+            }
+        }
+    } catch (const filesystem::filesystem_error& e) {
+        throw runtime_error("Erro ao acessar a pasta: " + string(e.what()));
+    }
 
-        std::cout << "Calculando a similaridade (distancia Euclidiana) entre as imagens..." << std::endl;
-        timer.start();
-        double distance = calculateEuclideanDistance(vec1, vec2);
-        double time_dist = timer.elapsed_milliseconds();
+    if (imageList.empty()) {
+        throw runtime_error("Nenhuma imagem válida encontrada na pasta especificada.");
+    }
 
-        std::cout << "  -> Distancia: " << distance << std::endl;
-        std::cout << "  -> Tempo de calculo: " << time_dist << " ms" << std::endl;
-        std::cout << "------------------------------------" << std::endl;
-        std::cout << "Teste concluido com sucesso!" << std::endl;
+    return imageList;
+}
 
+void testSimilarity(const ImageList& imageList) {
+    if (imageList.size() < 2) {
+        cout << "Necessário pelo menos 2 imagens para testar similaridade." << endl;
+        return;
+    }
 
-    } catch (const std::exception& e) {
-        std::cerr << "ERRO: " << e.what() << std::endl;
+    cout << "\n=== Teste de Similaridade ===" << endl;
+
+    // Usar as duas primeiras imagens
+    const ImageData& image1 = imageList.getImage(0);
+    const ImageData& image2 = imageList.getImage(1);
+
+    cout << "Comparando:" << endl;
+    cout << "  Imagem 1: " << filesystem::path(image1.path).filename().string() << endl;
+    cout << "  Imagem 2: " << filesystem::path(image2.path).filename().string() << endl;
+
+    Timer timer;
+    timer.start();
+    const double distance = calculateEuclideanDistance(image1.features, image2.features);
+    const double calculationTime = timer.elapsed_milliseconds();
+
+    cout << "Distância euclidiana: " << distance << endl;
+    cout << "Tempo de cálculo: " << calculationTime << " ms" << endl;
+}
+
+void testSequentialSearch(const ImageList& imageList) {
+    if (imageList.size() < 2) {
+        cout << "Necessário pelo menos 2 imagens para testar busca." << endl;
+        return;
+    }
+
+    cout << "\n=== Teste de Busca Sequencial ===" << endl;
+
+    // Usar a última imagem como consulta
+    const int queryIndex = imageList.size() - 1;
+    const ImageData& queryImage = imageList.getImage(queryIndex);
+    cout << "Imagem de consulta: " << filesystem::path(queryImage.path).filename().string() << endl;
+
+    Timer timer;
+    timer.start();
+    const int nearestIndex = imageList.findNearest(queryImage.features, queryIndex); // Ignora a própria imagem
+    const double searchTime = timer.elapsed_milliseconds();
+
+    if (nearestIndex >= 0) {
+        const ImageData& result = imageList.getImage(nearestIndex);
+        cout << "  -> Imagem mais próxima: " << filesystem::path(result.path).filename().string() << endl;
+        cout << "  -> Distância: " << calculateEuclideanDistance(queryImage.features, result.features) << endl;
+        cout << "  -> Tempo de busca: " << searchTime << " ms" << endl;
+        cout << "  -> Comparações realizadas: " << imageList.size()  << endl;
+    }
+}
+
+int main() {
+    const string images_folder = "../images";
+
+    try {
+        cout << "=== Sistema de Busca de Imagens ===" << endl;
+
+        const ImageList imageList = processImagesFromFolder(images_folder);
+
+        cout << "\nTotal de imagens carregadas: " << imageList.size() << endl;
+
+        testSimilarity(imageList);
+        testSequentialSearch(imageList);
+
+    } catch (const exception& e) {
+        cerr << "Erro: " << e.what() << endl;
         return 1;
     }
 
