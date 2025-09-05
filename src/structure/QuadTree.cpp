@@ -1,3 +1,4 @@
+// src/structure/QuadTree.cpp
 #include "QuadTree.h"
 #include <limits>
 #include <cmath>

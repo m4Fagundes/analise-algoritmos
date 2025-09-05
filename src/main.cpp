@@ -1,5 +1,11 @@
 // src/main.cpp
-
+/*
+    Sistema de Busca de Imagens com Diferentes Estruturas de Dados
+    Autores: Pedro Rodrigues Alves,
+    Data: 2024-06-20
+    Descrição: Implementa um sistema para carregar imagens, extrair características,
+                  e realizar buscas utilizando busca sequencial, tabela hash e quadtree.
+ */
 #include <iostream>
 #include <string>
 #include <vector>
