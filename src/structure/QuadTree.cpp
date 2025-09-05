@@ -1,10 +1,11 @@
-// src/structure/QuadTree.cpp
 #include "QuadTree.h"
 #include <limits>
 #include <cmath>
+#include <stdexcept>
 
 QuadTree::QuadTree(const BoundingBox& region, int capacity, int maxDepth)
-    : region(region), capacity(capacity), maxDepth(maxDepth), count(0), divided(false) {
+    : region(region), capacity(capacity), maxDepth(maxDepth),
+      count(0), divided(false) {
     for (int i = 0; i < 4; i++) children[i] = nullptr;
 }
 
@@ -30,11 +31,11 @@ void QuadTree::subdivide() {
     divided = true;
 }
 
-void QuadTree::insert(const ImageData& image, const FeatureVector& position) {
+void QuadTree::insert(const ImageData& image, const FeatureVector& position, int index) {
     if (!contains(position)) return;
 
-    if (images.size() < capacity || maxDepth == 0) {
-        images.push_back(image);
+    if (entries.size() < capacity || maxDepth == 0) {
+        entries.push_back({image, index});
         count++;
         return;
     }
@@ -42,34 +43,35 @@ void QuadTree::insert(const ImageData& image, const FeatureVector& position) {
     if (!divided) subdivide();
 
     for (int i = 0; i < 4; i++) {
-        children[i]->insert(image, position);
+        children[i]->insert(image, position, index);
     }
 }
 
 int QuadTree::findNearest(const FeatureVector& query, int ignoreIndex) const {
     double minDistance = std::numeric_limits<double>::max();
     int nearestIndex = -1;
-    int globalIndex = 0;
 
-    for (const auto& img : images) {
-        if (globalIndex == ignoreIndex) {
-            globalIndex++;
-            continue;
-        }
+    // Verifica entradas locais
+    for (const auto& entry : entries) {
+        if (entry.index == ignoreIndex) continue;
 
-        double distance = calculateEuclideanDistance(query, img.features);
+        double distance = calculateEuclideanDistance(query, entry.image.features);
         if (distance < minDistance) {
             minDistance = distance;
-            nearestIndex = globalIndex;
+            nearestIndex = entry.index;
         }
-        globalIndex++;
     }
 
+    // Verifica recursivamente nos filhos
     if (divided) {
         for (int i = 0; i < 4; i++) {
             int candidate = children[i]->findNearest(query, ignoreIndex);
             if (candidate != -1) {
-                nearestIndex = candidate;
+                double distance = calculateEuclideanDistance(query, children[i]->getImage(candidate).features);
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    nearestIndex = candidate;
+                }
             }
         }
     }
@@ -78,8 +80,21 @@ int QuadTree::findNearest(const FeatureVector& query, int ignoreIndex) const {
 }
 
 const ImageData& QuadTree::getImage(int index) const {
-    if (index < 0 || index >= images.size()) {
-        throw std::out_of_range("Índice inválido em QuadTree::getImage");
+    for (const auto& entry : entries) {
+        if (entry.index == index) {
+            return entry.image;
+        }
     }
-    return images[index];
+
+    if (divided) {
+        for (int i = 0; i < 4; i++) {
+            try {
+                return children[i]->getImage(index);
+            } catch (...) {
+                // continua buscando nos outros filhos
+            }
+        }
+    }
+
+    throw std::out_of_range("Índice inválido em QuadTree::getImage");
 }

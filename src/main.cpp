@@ -168,8 +168,8 @@ void testQuadTreeSearch(const QuadTree& quadTree, const ImageList& imageList) {
         cout << "  -> Imagem mais proxima: "
              << filesystem::path(result.path).filename().string() << endl;
         cout << "  -> Tempo de busca: " << searchTime << " ms" << endl;
-        cout << "  -> Comparações realizadas: " << quadTree.size() << endl;
-             cout << "  -> Distancia: "
+        cout << "  -> Comparacoes realizadas: " << quadTree.size() << endl;
+        cout << "  -> Distancia: "
              << calculateEuclideanDistance(queryImage.features, result.features) << endl;
     
         
@@ -197,10 +197,10 @@ int main() {
 
         // Construção da QuadTree
         for (size_t i = 0; i < imageList.size(); i++) {
-        // posição no espaço: [R médio, G médio]
-        FeatureVector pos = { imageList.getImage(i).features[0], imageList.getImage(i).features[1] };
-        quadTree.insert(imageList.getImage(i), pos);
-}
+            FeatureVector pos = { imageList.getImage(i).features[0], imageList.getImage(i).features[1] };
+            quadTree.insert(imageList.getImage(i), pos, i); // agora com índice global
+        }
+
 
         cout << "\nTotal de imagens armazenadas na HashTable: " << hashTable.size() << endl;
         cout << "\nTotal de imagens armazenadas na QuadTree: " << quadTree.size() << endl;

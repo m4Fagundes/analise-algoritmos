@@ -1,4 +1,3 @@
-// src/structure/QuadTree.h
 #pragma once
 
 #include <vector>
@@ -11,11 +10,16 @@ struct BoundingBox {
     float y_min, y_max;
 };
 
+struct QuadTreeEntry {
+    ImageData image;
+    int index; // índice global da imagem
+};
+
 class QuadTree {
 public:
     QuadTree(const BoundingBox& region, int capacity = 4, int maxDepth = 10);
 
-    void insert(const ImageData& image, const FeatureVector& position);
+    void insert(const ImageData& image, const FeatureVector& position, int index);
     int findNearest(const FeatureVector& query, int ignoreIndex = -1) const;
     const ImageData& getImage(int index) const;
 
@@ -28,7 +32,7 @@ private:
     int maxDepth;
     size_t count;
 
-    std::vector<ImageData> images;
+    std::vector<QuadTreeEntry> entries;
     bool divided;
     QuadTree* children[4];
 
