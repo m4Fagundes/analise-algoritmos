@@ -1,8 +1,9 @@
+// src/core/Vector.cpp
 #include "Vector.h"
 
 double calculateEuclideanDistance(const FeatureVector& v1, const FeatureVector& v2) {
     if (v1.size() != v2.size()) {
-        throw std::invalid_argument("Vetores devem ter o mesmo tamanho para calcular a distância.");
+        throw std::invalid_argument("Vetores devem ter o mesmo tamanho para calcular a distancia.");
     }
 
     double sum_of_squares = 0.0;

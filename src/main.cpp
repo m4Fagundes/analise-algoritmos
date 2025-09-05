@@ -12,6 +12,7 @@
 #include "core/Timer.h"
 #include "structure/List.h"
 #include "structure/HashTable.h"
+#include "structure/QuadTree.h"
 using namespace std;
 
 bool isImageFile(const string& filename) {
@@ -38,8 +39,8 @@ ImageList processImagesFromFolder(const string& folder_path) {
                 FeatureVector features = extractFeatures(img_path);
                 const double extraction_time = timer.elapsed_milliseconds();
 
-                cout << "  -> Vetor de características extraído com " << features.size() << " dimensões." << endl;
-                cout << "  -> Tempo de extração: " << extraction_time << " ms" << endl;
+                cout << "  -> Vetor de caracteristicas extraido com " << features.size() << " dimensoes." << endl;
+                cout << "  -> Tempo de extracao: " << extraction_time << " ms" << endl;
 
                 ImageData img_data(img_path, features, extraction_time);
                 imageList.addImage(img_data);
@@ -58,7 +59,7 @@ ImageList processImagesFromFolder(const string& folder_path) {
 
 void testSimilarity(const ImageList& imageList) {
     if (imageList.size() < 2) {
-        cout << "Necessário pelo menos 2 imagens para testar similaridade." << endl;
+        cout << "Necessario pelo menos 2 imagens para testar similaridade." << endl;
         return;
     }
 
@@ -77,13 +78,13 @@ void testSimilarity(const ImageList& imageList) {
     const double distance = calculateEuclideanDistance(image1.features, image2.features);
     const double calculationTime = timer.elapsed_milliseconds();
 
-    cout << "Distância euclidiana: " << distance << endl;
-    cout << "Tempo de cálculo: " << calculationTime << " ms" << endl;
+    cout << "Distancia euclidiana: " << distance << endl;
+    cout << "Tempo de calculo: " << calculationTime << " ms" << endl;
 }
 
 void testSequentialSearch(const ImageList& imageList) {
     if (imageList.size() < 2) {
-        cout << "Necessário pelo menos 2 imagens para testar busca." << endl;
+        cout << "Necessario pelo menos 2 imagens para testar busca." << endl;
         return;
     }
 
@@ -101,16 +102,16 @@ void testSequentialSearch(const ImageList& imageList) {
 
     if (nearestIndex >= 0) {
         const ImageData& result = imageList.getImage(nearestIndex);
-        cout << "  -> Imagem mais próxima: " << filesystem::path(result.path).filename().string() << endl;
-        cout << "  -> Distância: " << calculateEuclideanDistance(queryImage.features, result.features) << endl;
+        cout << "  -> Imagem mais proxima: " << filesystem::path(result.path).filename().string() << endl;
+        cout << "  -> Distancia: " << calculateEuclideanDistance(queryImage.features, result.features) << endl;
         cout << "  -> Tempo de busca: " << searchTime << " ms" << endl;
-        cout << "  -> Comparações realizadas: " << imageList.size()  << endl;
+        cout << "  -> Comparacoes realizadas: " << imageList.size()  << endl;
     }
 }
 
-void testHashTableSearch(const HashTable& hashTable) {
+void testHashTableSearch(const HashTable& hashTable) {  
     if (hashTable.size() < 2) {
-        cout << "Necessário pelo menos 2 imagens para testar busca com HashTable." << endl;
+        cout << "Necessario pelo menos 2 imagens para testar busca com HashTable." << endl;
         return;
     }
 
@@ -130,15 +131,37 @@ void testHashTableSearch(const HashTable& hashTable) {
 
     if (nearestIndex >= 0) {
         const ImageData& result = hashTable.getImage(nearestIndex);
-        cout << "  -> Imagem mais próxima: " 
+        cout << "  -> Imagem mais proxima: " 
              << filesystem::path(result.path).filename().string() << endl;
-        cout << "  -> Distância: " 
+        cout << "  -> Distancia: " 
              << calculateEuclideanDistance(queryImage.features, result.features) << endl;
         cout << "  -> Tempo de busca: " << searchTime << " ms" << endl;
-        cout << "  -> Comparações realizadas: " << hashTable.size() << endl;
+        cout << "  -> Comparacoes realizadas: " << hashTable.size() << endl;
     }
 }
 
+/** /
+void testQuadTreeSearch(const QuadTree& quadTree, const ImageList& imageList) {
+    if (quadTree.size() < 2) {
+        cout << "Necessario pelo menos 2 imagens para testar busca com QuadTree." << endl;
+        return;
+    }
+
+    cout << "\n=== Teste de Busca com QuadTree ===" << endl;
+
+    const ImageData& queryImage = imageList.getImage(imageList.size() - 1);
+    cout << "Imagem de consulta: " << filesystem::path(queryImage.path).filename().string() << endl;
+
+    Timer timer;
+    timer.start();
+    const ImageData* result = quadTree.findNearest(queryImage.features);
+    const double searchTime = timer.elapsed_milliseconds();
+
+    if (result) {
+        cout << "  -> Imagem mais próxima: " << filesystem::path(result->path).filename().string() << endl;
+        cout << "  -> Tempo de busca: " << searchTime << " ms" << endl;
+    }
+} / **/
 int main() {
     const string images_folder = "../images";
 
@@ -155,10 +178,19 @@ int main() {
         }
 
         cout << "\nTotal de imagens armazenadas na HashTable: " << hashTable.size() << endl;
+        /** /
+        QuadTree quadTree(0.0, 1.0, 0.0, 1.0); // histograma normalizado entre [0,1]
+        for (size_t i = 0; i < imageList.size(); i++) {
+            quadTree.insert(imageList.getImage(i));
+        }
+        cout << "\nTotal de imagens armazenadas na QuadTree: " << quadTree.size() << endl;
+        /**/
+
 
         testSimilarity(imageList);
         testSequentialSearch(imageList);
         testHashTableSearch(hashTable);
+        //testQuadTreeSearch(quadTree, imageList);
 
     } catch (const exception& e) {
         cerr << "Erro: " << e.what() << endl;
