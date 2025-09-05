@@ -124,7 +124,7 @@ void testHashTableSearch(const HashTable& hashTable) {
     cout << "\n=== Teste de Busca com HashTable ===" << endl;
 
     // Usar a última imagem como consulta
-    const int queryIndex = hashTable.size() - 1;
+    const int queryIndex = hashTable.size() - 1; // TODO: garantir mesmo indice do ImageList
     const ImageData& queryImage = hashTable.getImage(queryIndex);
 
     cout << "Imagem de consulta: " 
@@ -175,7 +175,7 @@ void testQuadTreeSearch(const QuadTree& quadTree, const ImageList& imageList) {
         cout << "  -> Imagem mais proxima: "
              << filesystem::path(result.path).filename().string() << endl;
         cout << "  -> Tempo de busca: " << searchTime << " ms" << endl;
-        cout << "  -> Comparacoes realizadas: " << quadTree.size() << endl;
+        cout << "  -> Comparacoes realizadas: " << quadTree.size() << endl; // TODO: implementar contagem real, size sempre sera 4
         cout << "  -> Distancia: "
              << calculateEuclideanDistance(queryImage.features, result.features) << endl;
     
