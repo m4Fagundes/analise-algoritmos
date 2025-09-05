@@ -11,7 +11,7 @@
 #include "core/Vector.h"
 #include "core/Timer.h"
 #include "structure/List.h"
-
+#include "structure/HashTable.h"
 using namespace std;
 
 bool isImageFile(const string& filename) {
@@ -108,6 +108,37 @@ void testSequentialSearch(const ImageList& imageList) {
     }
 }
 
+void testHashTableSearch(const HashTable& hashTable) {
+    if (hashTable.size() < 2) {
+        cout << "Necessário pelo menos 2 imagens para testar busca com HashTable." << endl;
+        return;
+    }
+
+    cout << "\n=== Teste de Busca com HashTable ===" << endl;
+
+    // Usar a última imagem como consulta
+    const int queryIndex = hashTable.size() - 1;
+    const ImageData& queryImage = hashTable.getImage(queryIndex);
+
+    cout << "Imagem de consulta: " 
+         << filesystem::path(queryImage.path).filename().string() << endl;
+
+    Timer timer;
+    timer.start();
+    const int nearestIndex = hashTable.findNearest(queryImage.features, queryIndex);
+    const double searchTime = timer.elapsed_milliseconds();
+
+    if (nearestIndex >= 0) {
+        const ImageData& result = hashTable.getImage(nearestIndex);
+        cout << "  -> Imagem mais próxima: " 
+             << filesystem::path(result.path).filename().string() << endl;
+        cout << "  -> Distância: " 
+             << calculateEuclideanDistance(queryImage.features, result.features) << endl;
+        cout << "  -> Tempo de busca: " << searchTime << " ms" << endl;
+        cout << "  -> Comparações realizadas: " << hashTable.size() << endl;
+    }
+}
+
 int main() {
     const string images_folder = "../images";
 
@@ -115,11 +146,19 @@ int main() {
         cout << "=== Sistema de Busca de Imagens ===" << endl;
 
         const ImageList imageList = processImagesFromFolder(images_folder);
-
+        
         cout << "\nTotal de imagens carregadas: " << imageList.size() << endl;
+        
+        HashTable hashTable(101); 
+        for (size_t i = 0; i < imageList.size(); i++) {
+            hashTable.addImage(imageList.getImage(i));
+        }
+
+        cout << "\nTotal de imagens armazenadas na HashTable: " << hashTable.size() << endl;
 
         testSimilarity(imageList);
         testSequentialSearch(imageList);
+        testHashTableSearch(hashTable);
 
     } catch (const exception& e) {
         cerr << "Erro: " << e.what() << endl;
