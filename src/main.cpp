@@ -76,9 +76,8 @@ void testSimilarity(const ImageList& imageList) {
     Timer timer;
     timer.start();
     const double distance = calculateEuclideanDistance(image1.features, image2.features);
-    const double calculationTime = timer.elapsed_milliseconds();
-
     cout << "Distancia euclidiana: " << distance << endl;
+    const double calculationTime = timer.elapsed_milliseconds();
     cout << "Tempo de calculo: " << calculationTime << " ms" << endl;
 }
 
@@ -103,9 +102,9 @@ void testSequentialSearch(const ImageList& imageList) {
     if (nearestIndex >= 0) {
         const ImageData& result = imageList.getImage(nearestIndex);
         cout << "  -> Imagem mais proxima: " << filesystem::path(result.path).filename().string() << endl;
-        cout << "  -> Distancia: " << calculateEuclideanDistance(queryImage.features, result.features) << endl;
         cout << "  -> Tempo de busca: " << searchTime << " ms" << endl;
         cout << "  -> Comparacoes realizadas: " << imageList.size()  << endl;
+        cout << "  -> Distancia: " << calculateEuclideanDistance(queryImage.features, result.features) << endl;
     }
 }
 
@@ -133,64 +132,83 @@ void testHashTableSearch(const HashTable& hashTable) {
         const ImageData& result = hashTable.getImage(nearestIndex);
         cout << "  -> Imagem mais proxima: " 
              << filesystem::path(result.path).filename().string() << endl;
-        cout << "  -> Distancia: " 
-             << calculateEuclideanDistance(queryImage.features, result.features) << endl;
         cout << "  -> Tempo de busca: " << searchTime << " ms" << endl;
         cout << "  -> Comparacoes realizadas: " << hashTable.size() << endl;
+        cout << "  -> Distancia: " 
+             << calculateEuclideanDistance(queryImage.features, result.features) << endl;
     }
 }
 
-/** /
 void testQuadTreeSearch(const QuadTree& quadTree, const ImageList& imageList) {
     if (quadTree.size() < 2) {
-        cout << "Necessario pelo menos 2 imagens para testar busca com QuadTree." << endl;
+        cout << "Necessário pelo menos 2 imagens para testar busca com QuadTree." << endl;
         return;
     }
 
     cout << "\n=== Teste de Busca com QuadTree ===" << endl;
 
-    const ImageData& queryImage = imageList.getImage(imageList.size() - 1);
-    cout << "Imagem de consulta: " << filesystem::path(queryImage.path).filename().string() << endl;
+    // Usar a última imagem como consulta
+    const int queryIndex = imageList.size() - 1;
+    const ImageData& queryImage = imageList.getImage(queryIndex);
+
+    cout << "Imagem de consulta: "
+         << filesystem::path(queryImage.path).filename().string() << endl;
 
     Timer timer;
     timer.start();
-    const ImageData* result = quadTree.findNearest(queryImage.features);
+
+    // Para consulta, usamos uma posição no espaço RGB (ex.: R e G médios)
+    FeatureVector pos = { queryImage.features[0], queryImage.features[1] };
+
+    const int nearestIndex = quadTree.findNearest(queryImage.features, queryIndex);
     const double searchTime = timer.elapsed_milliseconds();
 
-    if (result) {
-        cout << "  -> Imagem mais próxima: " << filesystem::path(result->path).filename().string() << endl;
+    if (nearestIndex >= 0) {
+        const ImageData& result = quadTree.getImage(nearestIndex);
+        cout << "  -> Imagem mais proxima: "
+             << filesystem::path(result.path).filename().string() << endl;
         cout << "  -> Tempo de busca: " << searchTime << " ms" << endl;
+        cout << "  -> Comparações realizadas: " << quadTree.size() << endl;
+             cout << "  -> Distancia: "
+             << calculateEuclideanDistance(queryImage.features, result.features) << endl;
+    
+        
     }
-} / **/
+}
+
 int main() {
     const string images_folder = "../images";
 
     try {
+        BoundingBox globalRegion = {0, 255, 0, 255}; // Espaço RGB reduzido a R e G
+        QuadTree quadTree(globalRegion, 4, 10);
+
         cout << "=== Sistema de Busca de Imagens ===" << endl;
 
         const ImageList imageList = processImagesFromFolder(images_folder);
         
         cout << "\nTotal de imagens carregadas: " << imageList.size() << endl;
         
+        // Construção da HashTable
         HashTable hashTable(101); 
         for (size_t i = 0; i < imageList.size(); i++) {
             hashTable.addImage(imageList.getImage(i));
         }
 
-        cout << "\nTotal de imagens armazenadas na HashTable: " << hashTable.size() << endl;
-        /** /
-        QuadTree quadTree(0.0, 1.0, 0.0, 1.0); // histograma normalizado entre [0,1]
+        // Construção da QuadTree
         for (size_t i = 0; i < imageList.size(); i++) {
-            quadTree.insert(imageList.getImage(i));
-        }
-        cout << "\nTotal de imagens armazenadas na QuadTree: " << quadTree.size() << endl;
-        /**/
+        // posição no espaço: [R médio, G médio]
+        FeatureVector pos = { imageList.getImage(i).features[0], imageList.getImage(i).features[1] };
+        quadTree.insert(imageList.getImage(i), pos);
+}
 
+        cout << "\nTotal de imagens armazenadas na HashTable: " << hashTable.size() << endl;
+        cout << "\nTotal de imagens armazenadas na QuadTree: " << quadTree.size() << endl;
 
         testSimilarity(imageList);
         testSequentialSearch(imageList);
         testHashTableSearch(hashTable);
-        //testQuadTreeSearch(quadTree, imageList);
+        testQuadTreeSearch(quadTree, imageList);
 
     } catch (const exception& e) {
         cerr << "Erro: " << e.what() << endl;
