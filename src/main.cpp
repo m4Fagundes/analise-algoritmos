@@ -1,7 +1,8 @@
 // src/main.cpp
 /*
     Sistema de Busca de Imagens com Diferentes Estruturas de Dados
-    Autores: Pedro Rodrigues Alves,
+    Autores:    Pedro Rodrigues Alves, Luca Lourenço Araújo Dal Bianco Gonzaga, Matheus Fagundes Araujo, Rafael Vilela Padilha Clark, 
+                Victor Lopes Azevedo Araujo, Guilherme Henrique Vieira Nascimento e Leonardo de Oliveira Carvalho.
     Data: 2024-06-20
     Descrição: Implementa um sistema para carregar imagens, extrair características,
                   e realizar buscas utilizando busca sequencial, tabela hash e quadtree.
