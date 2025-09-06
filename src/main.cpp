@@ -13,6 +13,7 @@
 #include <stdexcept>
 #include <filesystem>
 #include <algorithm>
+#include <random>
 
 #include "core/Image.h"
 #include "core/Vector.h"
@@ -21,6 +22,8 @@
 #include "structure/HashTable.h"
 #include "structure/QuadTree.h"
 using namespace std;
+
+int randImageGlobal = 0;
 
 bool isImageFile(const string& filename) {
     string extension = filesystem::path(filename).extension().string();
@@ -72,9 +75,9 @@ void testSimilarity(const ImageList& imageList) {
 
     cout << "\n=== Teste de Similaridade ===" << endl;
 
-    // Usar as duas primeiras imagens
-    const ImageData& image1 = imageList.getImage(0);
-    const ImageData& image2 = imageList.getImage(1);
+    // Usa imagem randômica + próxima válida
+    const ImageData& image1 = imageList.getImage(randImageGlobal);
+    const ImageData& image2 = imageList.getImage((randImageGlobal + 1) % imageList.size());
 
     cout << "Comparando:" << endl;
     cout << "  Imagem 1: " << filesystem::path(image1.path).filename().string() << endl;
@@ -96,14 +99,13 @@ void testSequentialSearch(const ImageList& imageList) {
 
     cout << "\n=== Teste de Busca Sequencial ===" << endl;
 
-    // Usar a última imagem como consulta
-    const int queryIndex = imageList.size() - 1;
+    const int queryIndex = randImageGlobal;
     const ImageData& queryImage = imageList.getImage(queryIndex);
     cout << "Imagem de consulta: " << filesystem::path(queryImage.path).filename().string() << endl;
 
     Timer timer;
     timer.start();
-    const int nearestIndex = imageList.findNearest(queryImage.features, queryIndex); // Ignora a própria imagem
+    const int nearestIndex = imageList.findNearest(queryImage.features, queryIndex); 
     const double searchTime = timer.elapsed_milliseconds();
 
     if (nearestIndex >= 0) {
@@ -115,6 +117,38 @@ void testSequentialSearch(const ImageList& imageList) {
     }
 }
 
+/** /
+void testHashTableSearch(const HashTable& hashTable, const ImageList& imageList) {  
+    if (hashTable.size() < 2) {
+        cout << "Necessario pelo menos 2 imagens para testar busca com HashTable." << endl;
+        return;
+    }
+
+    cout << "\n=== Teste de Busca com HashTable ===" << endl;
+
+    // Usa a mesma imagem de consulta que nas outras buscas
+    const ImageData& queryImage = imageList.getImage(randImageGlobal);
+
+    cout << "Imagem de consulta: " 
+         << filesystem::path(queryImage.path).filename().string() << endl;
+
+    Timer timer;
+    timer.start();
+    const int nearestIndex = hashTable.findNearest(queryImage.features, randImageGlobal);
+    const double searchTime = timer.elapsed_milliseconds();
+
+    if (nearestIndex >= 0) {
+        const ImageData& result = hashTable.getImage(nearestIndex);
+        cout << "  -> Imagem mais proxima: " 
+             << filesystem::path(result.path).filename().string() << endl;
+        cout << "  -> Tempo de busca: " << searchTime << " ms" << endl;
+        cout << "  -> Comparacoes realizadas: " << hashTable.size() << endl;
+        cout << "  -> Distancia: " 
+             << calculateEuclideanDistance(queryImage.features, result.features) << endl;
+    }
+}
+/**/ 
+
 void testHashTableSearch(const HashTable& hashTable) {  
     if (hashTable.size() < 2) {
         cout << "Necessario pelo menos 2 imagens para testar busca com HashTable." << endl;
@@ -124,8 +158,9 @@ void testHashTableSearch(const HashTable& hashTable) {
     cout << "\n=== Teste de Busca com HashTable ===" << endl;
 
     // Usar a última imagem como consulta
-    const int queryIndex = hashTable.size() - 1; // TODO: garantir mesmo indice do ImageList
-    const ImageData& queryImage = hashTable.getImage(queryIndex);
+    //const int queryIndex = hashTable.size() - 1; 
+    const int queryIndex = randImageGlobal;
+    const ImageData& queryImage = hashTable.getImage(queryIndex);// TODO : escolher uma imagem aleatória do mesmo index das outras buscas
 
     cout << "Imagem de consulta: " 
          << filesystem::path(queryImage.path).filename().string() << endl;
@@ -154,8 +189,7 @@ void testQuadTreeSearch(const QuadTree& quadTree, const ImageList& imageList) {
 
     cout << "\n=== Teste de Busca com QuadTree ===" << endl;
 
-    // Usar a última imagem como consulta
-    const int queryIndex = imageList.size() - 1;
+    const int queryIndex = randImageGlobal;
     const ImageData& queryImage = imageList.getImage(queryIndex);
 
     cout << "Imagem de consulta: "
@@ -164,10 +198,8 @@ void testQuadTreeSearch(const QuadTree& quadTree, const ImageList& imageList) {
     Timer timer;
     timer.start();
 
-    // Para consulta, usamos uma posição no espaço RGB (ex.: R e G médios)
-    FeatureVector pos = { queryImage.features[0], queryImage.features[1] };
-
-    const int nearestIndex = quadTree.findNearest(queryImage.features, queryIndex);
+    int comparisons = 0; // contador real
+    const int nearestIndex = quadTree.findNearest(queryImage.features, queryIndex, comparisons);
     const double searchTime = timer.elapsed_milliseconds();
 
     if (nearestIndex >= 0) {
@@ -175,11 +207,9 @@ void testQuadTreeSearch(const QuadTree& quadTree, const ImageList& imageList) {
         cout << "  -> Imagem mais proxima: "
              << filesystem::path(result.path).filename().string() << endl;
         cout << "  -> Tempo de busca: " << searchTime << " ms" << endl;
-        cout << "  -> Comparacoes realizadas: " << quadTree.size() << endl; // TODO: implementar contagem real, size sempre sera 4
+        cout << "  -> Comparacoes realizadas: " << comparisons << endl;
         cout << "  -> Distancia: "
              << calculateEuclideanDistance(queryImage.features, result.features) << endl;
-    
-        
     }
 }
 
@@ -187,13 +217,16 @@ int main() {
     const string images_folder = "../images";
 
     try {
+        random_device rd;
+        mt19937 gen(rd());
+        uniform_int_distribution<> distrib(1, 10000);
         BoundingBox globalRegion = {0, 255, 0, 255}; // Espaço RGB reduzido a R e G
         QuadTree quadTree(globalRegion, 4, 10);
 
         cout << "=== Sistema de Busca de Imagens ===" << endl;
 
         const ImageList imageList = processImagesFromFolder(images_folder);
-        
+        randImageGlobal = distrib(gen) % (imageList.size() - 1);
         cout << "\nTotal de imagens carregadas: " << imageList.size() << endl;
         
         // Construção da HashTable
@@ -208,7 +241,6 @@ int main() {
             quadTree.insert(imageList.getImage(i), pos, i); // agora com índice global
         }
 
-
         cout << "\nTotal de imagens armazenadas na HashTable: " << hashTable.size() << endl;
         cout << "\nTotal de imagens armazenadas na QuadTree: " << quadTree.size() << endl;
 
@@ -216,7 +248,6 @@ int main() {
         testSequentialSearch(imageList);
         testHashTableSearch(hashTable);
         testQuadTreeSearch(quadTree, imageList);
-
     } catch (const exception& e) {
         cerr << "Erro: " << e.what() << endl;
         return 1;
