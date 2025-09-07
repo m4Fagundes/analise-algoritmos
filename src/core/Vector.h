@@ -4,8 +4,6 @@
 #define VECTOR_H
 
 #include <vector>
-#include <cmath>
-#include <stdexcept>
 
 using FeatureVector = std::vector<float>;
 

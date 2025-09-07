@@ -1,4 +1,5 @@
 // src/core/Vector.cpp
+
 #include "Vector.h"
 
 double calculateEuclideanDistance(const FeatureVector& v1, const FeatureVector& v2) {

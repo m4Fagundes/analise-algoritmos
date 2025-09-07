@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 #include "../core/Vector.h"
-#include "List.h" // Para acessar a struct ImageData, apenas para isso
+#include "List.h"
 
 class HashTable {
 public:

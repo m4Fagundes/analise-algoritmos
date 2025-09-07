@@ -1,4 +1,5 @@
 // src/structure/HashTable.cpp
+
 #include "HashTable.h"
 #include <functional>
 #include <limits>
@@ -25,7 +26,6 @@ int HashTable::findNearest(const FeatureVector& query, int ignoreIndex) const {
     double minDistance = std::numeric_limits<double>::max();
     int globalIndex = 0;
 
-    // percorre todos os buckets
     for (const auto& bucket : buckets) {
         for (const auto& img : bucket) {
             if (globalIndex == ignoreIndex) {

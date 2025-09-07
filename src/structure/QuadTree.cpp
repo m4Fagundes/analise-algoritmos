@@ -1,7 +1,7 @@
 // src/structure/QuadTree.cpp
+
 #include "QuadTree.h"
 #include <limits>
-#include <cmath>
 #include <stdexcept>
 
 QuadTree::QuadTree(const BoundingBox& region, int capacity, int maxDepth)
@@ -48,48 +48,15 @@ void QuadTree::insert(const ImageData& image, const FeatureVector& position, int
     }
 }
 
-/*int QuadTree::findNearest(const FeatureVector& query, int ignoreIndex) const {
-    double minDistance = std::numeric_limits<double>::max();
-    int nearestIndex = -1;
-
-    // Verifica entradas locais
-    for (const auto& entry : entries) {
-        if (entry.index == ignoreIndex) continue;
-
-        double distance = calculateEuclideanDistance(query, entry.image.features);
-        if (distance < minDistance) {
-            minDistance = distance;
-            nearestIndex = entry.index;
-        }
-    }
-
-    // Verifica recursivamente nos filhos
-    if (divided) {
-        for (int i = 0; i < 4; i++) {
-            int candidate = children[i]->findNearest(query, ignoreIndex);
-            if (candidate != -1) {
-                double distance = calculateEuclideanDistance(query, children[i]->getImage(candidate).features);
-                if (distance < minDistance) {
-                    minDistance = distance;
-                    nearestIndex = candidate;
-                }
-            }
-        }
-    }
-
-    return nearestIndex;
-}*/
-
 int QuadTree::findNearest(const FeatureVector& query, int ignoreIndex, int& comparisons) const {
     double minDistance = std::numeric_limits<double>::max();
     int nearestIndex = -1;
 
-    // Verifica entradas locais
+    // verifica entradas locais
     for (const auto& entry : entries) {
         if (entry.index == ignoreIndex) continue;
 
         double distance = calculateEuclideanDistance(query, entry.image.features);
-        comparisons++; // incrementa contador
 
         if (distance < minDistance) {
             minDistance = distance;
@@ -97,13 +64,13 @@ int QuadTree::findNearest(const FeatureVector& query, int ignoreIndex, int& comp
         }
     }
 
-    // Verifica recursivamente nos filhos
+    // verifica recursivamente nos filhos
     if (divided) {
         for (int i = 0; i < 4; i++) {
             int candidate = children[i]->findNearest(query, ignoreIndex, comparisons);
             if (candidate != -1) {
                 double distance = calculateEuclideanDistance(query, children[i]->getImage(candidate).features);
-                comparisons++; // nova comparação
+                comparisons++;
                 if (distance < minDistance) {
                     minDistance = distance;
                     nearestIndex = candidate;
@@ -116,7 +83,7 @@ int QuadTree::findNearest(const FeatureVector& query, int ignoreIndex, int& comp
 }
 
 
-const ImageData& QuadTree::getImage(int index) const {
+const ImageData& QuadTree::getImage(int index) const  {
     for (const auto& entry : entries) {
         if (entry.index == index) {
             return entry.image;

@@ -1,12 +1,11 @@
 // src/main.cpp
+
 /*
     Sistema de Busca de Imagens com Diferentes Estruturas de Dados
-    Autores:    Pedro Rodrigues Alves, Luca Lourenço Araújo Dal Bianco Gonzaga, Matheus Fagundes Araujo, Rafael Vilela Padilha Clark, 
-                Victor Lopes Azevedo Araujo, Guilherme Henrique Vieira Nascimento e Leonardo de Oliveira Carvalho.
-    Data: 2024-06-20
-    Descrição: Implementa um sistema para carregar imagens, extrair características,
-                  e realizar buscas utilizando busca sequencial, tabela hash e quadtree.
+    Autores: Pedro Rodrigues Alves, Luca Lourenço Araújo Dal Bianco Gonzaga, Matheus Fagundes Araujo, Rafael Vilela Padilha Clark, Victor Lopes Azevedo Araujo, Guilherme Henrique Vieira Nascimento e Leonardo de Oliveira Carvalho.
+    Descrição: Implementa um sistema para carregar imagens, extrair características, e realizar buscas utilizando lista linear, tabela hash e quadtree.
  */
+
 #include <iostream>
 #include <string>
 #include <vector>
@@ -21,6 +20,7 @@
 #include "structure/List.h"
 #include "structure/HashTable.h"
 #include "structure/QuadTree.h"
+
 using namespace std;
 
 int randImageGlobal = 0;
@@ -67,7 +67,6 @@ ImageList processImagesFromFolder(const string& folder_path) {
     return imageList;
 }
 
-// Função para carregar a imagem de referência
 ImageData loadReferenceImage(const string& reference_folder) {
     for (const auto& entry : filesystem::directory_iterator(reference_folder)) {
         if (entry.is_regular_file() && isImageFile(entry.path().string())) {
@@ -85,14 +84,13 @@ ImageData loadReferenceImage(const string& reference_folder) {
     throw runtime_error("Nenhuma imagem válida encontrada na pasta de referência.");
 }
 
-// Altere as funções de teste para receber a imagem de referência
 void testSimilarity(const ImageList& imageList, const ImageData& refImage) {
     if (imageList.size() < 2) {
         cout << "Necessario pelo menos 2 imagens para testar similaridade." << endl;
         return;
     }
     cout << "\n=== Teste de Similaridade ===" << endl;
-    // Compara referência com a mais próxima da lista
+
     int nearestIndex = imageList.findNearest(refImage.features, -1);
     if (nearestIndex >= 0) {
         const ImageData& nearest = imageList.getImage(nearestIndex);
@@ -185,16 +183,15 @@ int main() {
         const ImageList imageList = processImagesFromFolder(images_folder);
         cout << "\nTotal de imagens carregadas: " << imageList.size() << endl;
 
-        // Carrega imagem de referência
         ImageData referenceImage = loadReferenceImage(reference_folder);
 
-        // Construção da HashTable
+        // construção da HashTable
         HashTable hashTable(101); 
         for (size_t i = 0; i < imageList.size(); i++) {
             hashTable.addImage(imageList.getImage(i));
         }
 
-        // Construção da QuadTree
+        // construção da QuadTree
         for (size_t i = 0; i < imageList.size(); i++) {
             FeatureVector pos = { imageList.getImage(i).features[0], imageList.getImage(i).features[1] };
             quadTree.insert(imageList.getImage(i), pos, i);

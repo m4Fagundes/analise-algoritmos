@@ -4,8 +4,6 @@
 #include "Vector.h"
 #include <stdexcept>
 #include <iostream>
-#include <numeric>
-
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"

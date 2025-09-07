@@ -1,10 +1,11 @@
 // src/structure/QuadTree.h
+
 #pragma once
 
 #include <vector>
 #include <string>
 #include "../core/Vector.h"
-#include "List.h" // Para usar ImageData
+#include "List.h"
 
 struct BoundingBox {
     float x_min, x_max;
@@ -21,7 +22,6 @@ public:
     QuadTree(const BoundingBox& region, int capacity = 4, int maxDepth = 10);
 
     void insert(const ImageData& image, const FeatureVector& position, int index);
-    //int findNearest(const FeatureVector& query, int ignoreIndex = -1) const;
     int findNearest(const FeatureVector& query, int ignoreIndex = -1, int& comparisons = *(new int(0))) const;
     const ImageData& getImage(int index) const;
 
