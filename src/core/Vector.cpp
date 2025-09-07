@@ -1,6 +1,8 @@
 // src/core/Vector.cpp
 
 #include "Vector.h"
+#include <cmath>
+#include <stdexcept>
 
 double calculateEuclideanDistance(const FeatureVector& v1, const FeatureVector& v2) {
     if (v1.size() != v2.size()) {
