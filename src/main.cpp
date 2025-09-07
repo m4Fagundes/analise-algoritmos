@@ -108,12 +108,12 @@ void testSimilarity(const ImageList& imageList, const ImageData& refImage) {
     }
 }
 
-void testSequentialSearch(const ImageList& imageList, const ImageData& refImage) {
+void testListSearch(const ImageList& imageList, const ImageData& refImage) {
     if (imageList.size() < 2) {
         cout << "Necessario pelo menos 2 imagens para testar busca." << endl;
         return;
     }
-    cout << "\n=== Teste de Busca Sequencial ===" << endl;
+    cout << "\n=== Teste de Busca com Lista ===" << endl;
     cout << "Imagem de consulta: " << filesystem::path(refImage.path).filename().string() << endl;
     Timer timer;
     timer.start();
@@ -204,7 +204,7 @@ int main() {
         cout << "\nTotal de imagens armazenadas na QuadTree: " << quadTree.size() << endl;
 
         testSimilarity(imageList, referenceImage);
-        testSequentialSearch(imageList, referenceImage);
+        testListSearch(imageList, referenceImage);
         testHashTableSearch(hashTable, referenceImage);
         testQuadTreeSearch(quadTree, referenceImage);
 
