@@ -25,6 +25,7 @@ add_executable(${EXECUTABLE_NAME}
     src/structure/List.cpp
     src/structure/QuadTree.cpp
     src/structure/HashTable.cpp
+    src/structure/LSH.cpp
 )
 
 # Adiciona os diretórios que contêm arquivos de cabeçalho (.h)
