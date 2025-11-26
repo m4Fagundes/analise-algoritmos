@@ -21,6 +21,7 @@
 #include "structure/HashTable.h"
 #include "structure/QuadTree.h"
 #include "structure/LSH.h"
+#include "structure/MTree.h"
 
 using namespace std;
 
@@ -221,6 +222,34 @@ void testLSHSearch(const LSH &lsh, const ImageData &refImage)
     }
 }
 
+void testMTreeSearch(const MTree &mtree, const ImageData &refImage)
+{
+    if (mtree.size() < 2)
+    {
+        cout << "Necessário pelo menos 2 imagens para testar busca com M-Tree." << endl;
+        return;
+    }
+    
+    cout << "\n=== Teste de Busca com M-Tree ===" << endl;
+    cout << "Imagem de consulta: " << filesystem::path(refImage.path).filename().string() << endl;
+    
+    Timer timer;
+    timer.start();
+    
+    int comparisons = 0;
+    const int nearestIndex = mtree.findNearest(refImage.features, -1, comparisons);
+    const double searchTime = timer.elapsed_milliseconds();
+    
+    if (nearestIndex >= 0)
+    {
+        const ImageData &result = mtree.getImage(nearestIndex);
+        cout << "  -> Imagem mais proxima: " << filesystem::path(result.path).filename().string() << endl;
+        cout << "  -> Tempo de busca: " << searchTime << " ms" << endl;
+        cout << "  -> Comparacoes realizadas: " << comparisons << endl;
+        cout << "  -> Distancia: " << calculateEuclideanDistance(refImage.features, result.features) << endl;
+    }
+}
+
 int main()
 {
     const string images_folder = "images";
@@ -268,11 +297,21 @@ int main()
         }
         cout << "Total de imagens na LSH: " << lshIndex.size() << endl;
 
+        // Construção da M-Tree
+        MTree mtree(10); // capacidade de 10 entradas por nó
+        cout << "Construindo índice M-Tree..." << endl;
+        for (size_t i = 0; i < imageList.size(); i++)
+        {
+            mtree.insert(imageList.getImage(i), static_cast<int>(i));
+        }
+        cout << "Total de imagens na M-Tree: " << mtree.size() << endl;
+
         testSimilarity(imageList, referenceImage);
         testListSearch(imageList, referenceImage);
         testHashTableSearch(hashTable, referenceImage);
         testQuadTreeSearch(quadTree, referenceImage);
         testLSHSearch(lshIndex, referenceImage);
+        testMTreeSearch(mtree, referenceImage);
     }
     catch (const exception &e)
     {
