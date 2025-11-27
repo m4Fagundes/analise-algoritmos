@@ -50,14 +50,14 @@ ImageList processImagesFromFolder(const string &folder_path)
             {
                 string img_path = entry.path().string();
 
-                cout << "Processando: " << entry.path().filename().string() << endl;
+                // cout << "Processando: " << entry.path().filename().string() << endl;
 
                 timer.start();
                 FeatureVector features = extractFeatures(img_path);
                 const double extraction_time = timer.elapsed_milliseconds();
 
-                cout << "  -> Vetor de caracteristicas extraido com " << features.size() << " dimensoes." << endl;
-                cout << "  -> Tempo de extracao: " << extraction_time << " ms" << endl;
+                //cout << "  -> Vetor de caracteristicas extraido com " << features.size() << " dimensoes." << endl;
+                //cout << "  -> Tempo de extracao: " << extraction_time << " ms" << endl;
 
                 ImageData img_data(img_path, features, extraction_time);
                 imageList.addImage(img_data);
@@ -284,18 +284,14 @@ int main()
             quadTree.insert(imageList.getImage(i), pos, i);
         }
 
-        cout << "\nTotal de imagens armazenadas na HashTable: " << hashTable.size() << endl;
-        cout << "\nTotal de imagens armazenadas na QuadTree: " << quadTree.size() << endl;
-
+        // Construção do LSH
         int vecDim = imageList.size() > 0 ? imageList.getImage(0).features.size() : 64;
         LSH lshIndex(vecDim, 5, 12);
-
         cout << "Construindo índice LSH..." << endl;
         for (size_t i = 0; i < imageList.size(); i++)
         {
             lshIndex.addImage(imageList.getImage(i));
         }
-        cout << "Total de imagens na LSH: " << lshIndex.size() << endl;
 
         // Construção da M-Tree
         MTree mtree(10); // capacidade de 10 entradas por nó
@@ -304,9 +300,13 @@ int main()
         {
             mtree.insert(imageList.getImage(i), static_cast<int>(i));
         }
+
+        cout << "\nTotal de imagens armazenadas na HashTable: " << hashTable.size() << endl;
+        cout << "\nTotal de imagens armazenadas na QuadTree: " << quadTree.size() << endl;
+        cout << "Total de imagens na LSH: " << lshIndex.size() << endl; 
         cout << "Total de imagens na M-Tree: " << mtree.size() << endl;
 
-        testSimilarity(imageList, referenceImage);
+        //testSimilarity(imageList, referenceImage);
         testListSearch(imageList, referenceImage);
         testHashTableSearch(hashTable, referenceImage);
         testQuadTreeSearch(quadTree, referenceImage);
