@@ -129,8 +129,8 @@ void testListSearch(const ImageList &imageList, const ImageData &refImage)
         cout << "Necessario pelo menos 2 imagens para testar busca." << endl;
         return;
     }
-    cout << "\n=== Teste de Busca com Lista ===" << endl;
-    cout << "Imagem de consulta: " << filesystem::path(refImage.path).filename().string() << endl;
+    //cout << "\n=== Teste de Busca com Lista ===" << endl;
+    cout << endl <<"Imagem de consulta: " << filesystem::path(refImage.path).filename().string() << endl;
     Timer timer;
     timer.start();
     const int nearestIndex = imageList.findNearest(refImage.features, -1);
@@ -138,10 +138,17 @@ void testListSearch(const ImageList &imageList, const ImageData &refImage)
     if (nearestIndex >= 0)
     {
         const ImageData &result = imageList.getImage(nearestIndex);
-        cout << "  -> Imagem mais proxima: " << filesystem::path(result.path).filename().string() << endl;
-        cout << "  -> Tempo de busca: " << searchTime << " ms" << endl;
-        cout << "  -> Comparacoes realizadas: " << imageList.size() << endl;
-        cout << "  -> Distancia: " << calculateEuclideanDistance(refImage.features, result.features) << endl;
+        //cout << "  -> Imagem mais proxima: " << filesystem::path(result.path).filename().string() << endl;
+        //cout << "  -> Tempo de busca: " << searchTime << " ms" << endl;
+        //cout << "  -> Comparacoes realizadas: " << imageList.size() << endl;
+        //cout << "  -> Distancia: " << calculateEuclideanDistance(refImage.features, result.features) << endl;
+
+        cout << "[Lista]     -> "
+            << filesystem::path(result.path).filename().string()
+            << " | Distancia: " << calculateEuclideanDistance(refImage.features, result.features)
+            << " | Tempo: " << searchTime << " ms"
+            << " | Comparacoes: " << imageList.size() 
+            << endl;        
     }
 }
 
@@ -152,8 +159,8 @@ void testHashTableSearch(const HashTable &hashTable, const ImageData &refImage)
         cout << "Necessario pelo menos 2 imagens para testar busca com HashTable." << endl;
         return;
     }
-    cout << "\n=== Teste de Busca com HashTable ===" << endl;
-    cout << "Imagem de consulta: " << filesystem::path(refImage.path).filename().string() << endl;
+    //cout << "\n=== Teste de Busca com HashTable ===" << endl;
+    //cout << "Imagem de consulta: " << filesystem::path(refImage.path).filename().string() << endl;
     Timer timer;
     timer.start();
     const int nearestIndex = hashTable.findNearest(refImage.features, -1);
@@ -161,10 +168,17 @@ void testHashTableSearch(const HashTable &hashTable, const ImageData &refImage)
     if (nearestIndex >= 0)
     {
         const ImageData &result = hashTable.getImage(nearestIndex);
-        cout << "  -> Imagem mais proxima: " << filesystem::path(result.path).filename().string() << endl;
-        cout << "  -> Tempo de busca: " << searchTime << " ms" << endl;
-        cout << "  -> Comparacoes realizadas: " << hashTable.size() << endl;
-        cout << "  -> Distancia: " << calculateEuclideanDistance(refImage.features, result.features) << endl;
+       // cout << "  -> Imagem mais proxima: " << filesystem::path(result.path).filename().string() << endl;
+       // cout << "  -> Tempo de busca: " << searchTime << " ms" << endl;
+       // cout << "  -> Comparacoes realizadas: " << hashTable.size() << endl;
+       // cout << "  -> Distancia: " << calculateEuclideanDistance(refImage.features, result.features) << endl;
+
+        cout << "[HashTable] -> "
+            << filesystem::path(result.path).filename().string()
+            << " | Distancia: " << calculateEuclideanDistance(refImage.features, result.features)
+            << " | Tempo: " << searchTime << " ms"
+            << " | Comparacoes: " << hashTable.size()
+            << endl;
     }
 }
 
@@ -175,8 +189,8 @@ void testQuadTreeSearch(const QuadTree &quadTree, const ImageData &refImage)
         cout << "Necessário pelo menos 2 imagens para testar busca com QuadTree." << endl;
         return;
     }
-    cout << "\n=== Teste de Busca com QuadTree ===" << endl;
-    cout << "Imagem de consulta: " << filesystem::path(refImage.path).filename().string() << endl;
+    //cout << "\n=== Teste de Busca com QuadTree ===" << endl;
+    //cout << "Imagem de consulta: " << filesystem::path(refImage.path).filename().string() << endl;
     Timer timer;
     timer.start();
     int comparisons = 0;
@@ -185,10 +199,18 @@ void testQuadTreeSearch(const QuadTree &quadTree, const ImageData &refImage)
     if (nearestIndex >= 0)
     {
         const ImageData &result = quadTree.getImage(nearestIndex);
-        cout << "  -> Imagem mais proxima: " << filesystem::path(result.path).filename().string() << endl;
-        cout << "  -> Tempo de busca: " << searchTime << " ms" << endl;
-        cout << "  -> Comparacoes realizadas: " << comparisons << endl;
-        cout << "  -> Distancia: " << calculateEuclideanDistance(refImage.features, result.features) << endl;
+        //cout << "  -> Imagem mais proxima: " << filesystem::path(result.path).filename().string() << endl;
+        //cout << "  -> Tempo de busca: " << searchTime << " ms" << endl;
+        //cout << "  -> Comparacoes realizadas: " << comparisons << endl;
+        //cout << "  -> Distancia: " << calculateEuclideanDistance(refImage.features, result.features) << endl;
+
+        cout << "[QuadTree]  -> "
+            << filesystem::path(result.path).filename().string()
+            << " | Distancia: " << calculateEuclideanDistance(refImage.features, result.features)
+            << " | Tempo: " << searchTime << " ms"
+            << " | Comparacoes: " << comparisons
+            << endl;
+
     }
 }
 
@@ -197,8 +219,8 @@ void testLSHSearch(const LSH &lsh, const ImageData &refImage)
     if (lsh.size() < 2)
         return;
 
-    cout << "\n=== Teste de Busca com LSH (Locality Sensitive Hashing) ===" << endl;
-    cout << "Imagem de consulta: " << filesystem::path(refImage.path).filename().string() << endl;
+    //cout << "\n=== Teste de Busca com LSH (Locality Sensitive Hashing) ===" << endl;
+    //cout << "Imagem de consulta: " << filesystem::path(refImage.path).filename().string() << endl;
 
     Timer timer;
     timer.start();
@@ -211,10 +233,17 @@ void testLSHSearch(const LSH &lsh, const ImageData &refImage)
     if (nearestIndex >= 0)
     {
         const ImageData &result = lsh.getImage(nearestIndex);
-        cout << "  -> Imagem mais proxima: " << filesystem::path(result.path).filename().string() << endl;
-        cout << "  -> Tempo de busca: " << searchTime << " ms" << endl;
-        cout << "  -> Candidatos analisados (Comparacoes): " << comparisons << endl;
-        cout << "  -> Distancia: " << calculateEuclideanDistance(refImage.features, result.features) << endl;
+        //cout << "  -> Imagem mais proxima: " << filesystem::path(result.path).filename().string() << endl;
+        //cout << "  -> Tempo de busca: " << searchTime << " ms" << endl;
+        //cout << "  -> Candidatos analisados (Comparacoes): " << comparisons << endl;
+        //cout << "  -> Distancia: " << calculateEuclideanDistance(refImage.features, result.features) << endl;
+
+        cout << "[LSH]       -> "
+            << filesystem::path(result.path).filename().string()
+            << " | Distancia: " << calculateEuclideanDistance(refImage.features, result.features)
+            << " | Tempo: " << searchTime << " ms"
+            << " | Candidatos: " << comparisons
+            << endl;
     }
     else
     {
@@ -230,8 +259,8 @@ void testMTreeSearch(const MTree &mtree, const ImageData &refImage)
         return;
     }
     
-    cout << "\n=== Teste de Busca com M-Tree ===" << endl;
-    cout << "Imagem de consulta: " << filesystem::path(refImage.path).filename().string() << endl;
+    //cout << "\n=== Teste de Busca com M-Tree ===" << endl;
+    //cout << "Imagem de consulta: " << filesystem::path(refImage.path).filename().string() << endl;
     
     Timer timer;
     timer.start();
@@ -243,12 +272,22 @@ void testMTreeSearch(const MTree &mtree, const ImageData &refImage)
     if (nearestIndex >= 0)
     {
         const ImageData &result = mtree.getImage(nearestIndex);
-        cout << "  -> Imagem mais proxima: " << filesystem::path(result.path).filename().string() << endl;
-        cout << "  -> Tempo de busca: " << searchTime << " ms" << endl;
-        cout << "  -> Comparacoes realizadas: " << comparisons << endl;
-        cout << "  -> Distancia: " << calculateEuclideanDistance(refImage.features, result.features) << endl;
+        //cout << "  -> Imagem mais proxima: " << filesystem::path(result.path).filename().string() << endl;
+        //cout << "  -> Tempo de busca: " << searchTime << " ms" << endl;
+        //cout << "  -> Comparacoes realizadas: " << comparisons << endl;
+        //cout << "  -> Distancia: " << calculateEuclideanDistance(refImage.features, result.features) << endl;
+
+        cout << "[M-Tree]    -> "
+            << filesystem::path(result.path).filename().string()
+            << " | Distancia: " << calculateEuclideanDistance(refImage.features, result.features)
+            << " | Tempo: " << searchTime << " ms"
+            << " | Comparacoes: " << comparisons
+            << endl;
+
+        
     }
 }
+
 
 int main()
 {
@@ -266,9 +305,11 @@ int main()
         cout << "=== Sistema de Busca de Imagens ===" << endl;
 
         const ImageList imageList = processImagesFromFolder(images_folder);
-        cout << "\nTotal de imagens carregadas: " << imageList.size() << endl;
+        const ImageList imageListReference = processImagesFromFolder(reference_folder);
+        cout << "\nTotal de imagens carregadas na lista de imagem: " << imageList.size() << endl;
+        cout << "\nTotal de imagens carregadas na lista de imagem de referencia: " << imageListReference.size() << endl;
 
-        ImageData referenceImage = loadReferenceImage(reference_folder);
+        //ImageData referenceImage = loadReferenceImage(reference_folder);
 
         // construção da HashTable
         HashTable hashTable(101);
@@ -287,7 +328,7 @@ int main()
         // Construção do LSH
         int vecDim = imageList.size() > 0 ? imageList.getImage(0).features.size() : 64;
         LSH lshIndex(vecDim, 5, 12);
-        cout << "Construindo índice LSH..." << endl;
+        //cout << "Construindo índice LSH..." << endl;
         for (size_t i = 0; i < imageList.size(); i++)
         {
             lshIndex.addImage(imageList.getImage(i));
@@ -295,23 +336,39 @@ int main()
 
         // Construção da M-Tree
         MTree mtree(10); // capacidade de 10 entradas por nó
-        cout << "Construindo índice M-Tree..." << endl;
+        //cout << "Construindo índice M-Tree..." << endl;
         for (size_t i = 0; i < imageList.size(); i++)
         {
             mtree.insert(imageList.getImage(i), static_cast<int>(i));
         }
 
+        /** /
         cout << "\nTotal de imagens armazenadas na HashTable: " << hashTable.size() << endl;
         cout << "\nTotal de imagens armazenadas na QuadTree: " << quadTree.size() << endl;
         cout << "Total de imagens na LSH: " << lshIndex.size() << endl; 
         cout << "Total de imagens na M-Tree: " << mtree.size() << endl;
+        /**/
+        ImageData referenceImage;
+        for (int i = 0; i < imageListReference.size(); i++) 
+        {
+            referenceImage = imageListReference.getImage(i);
+            //testSimilarity(imageList, referenceImage);
+            testListSearch(imageList, referenceImage);  
+            testHashTableSearch(hashTable, referenceImage);
+            testQuadTreeSearch(quadTree, referenceImage);
+            testLSHSearch(lshIndex, referenceImage);
+            testMTreeSearch(mtree, referenceImage);
+        }
 
+        /** / 
         //testSimilarity(imageList, referenceImage);
-        testListSearch(imageList, referenceImage);
-        testHashTableSearch(hashTable, referenceImage);
-        testQuadTreeSearch(quadTree, referenceImage);
-        testLSHSearch(lshIndex, referenceImage);
-        testMTreeSearch(mtree, referenceImage);
+        //testListSearch(imageList, referenceImage);
+        //testHashTableSearch(hashTable, referenceImage);
+        //testQuadTreeSearch(quadTree, referenceImage);
+        //testLSHSearch(lshIndex, referenceImage);
+        //testMTreeSearch(mtree, referenceImage);
+        /**/
+
     }
     catch (const exception &e)
     {
